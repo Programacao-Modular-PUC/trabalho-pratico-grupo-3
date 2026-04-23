@@ -1,0 +1,72 @@
+@startuml diagrama_sprint1_hospedagem
+skinparam classAttributeIconSize 0
+hide circle
+
+class Residence {
+  +id: Long
+  +endereco: String
+  +numero: String
+  +bairro: String
+  +cep: String
+  +telefone: String
+  +email: String
+}
+
+class Room {
+  +id: Long
+  +valorDiariaBase: BigDecimal
+  +tipo: RoomType
+  +possuiAr: boolean
+  +possuiBanheiraHidromassagem: boolean
+}
+
+enum RoomType {
+  INDIVIDUAL
+  CASAL
+}
+
+class Client {
+  +id: Long
+  +nome: String
+  +cpf: String
+  +endereco: String
+  +telefone: String
+  +email: String
+}
+
+class Rental {
+  +id: Long
+  +dataEntrada: LocalDateTime
+  +dataSaida: LocalDateTime
+  +numeroDiarias: Integer
+  +totalPagar: BigDecimal
+}
+
+enum PaymentStatus {
+  PENDENTE
+  PAGO
+}
+
+class Payment {
+  +id: Long
+  +valor: BigDecimal
+  +dataPagamento: LocalDateTime
+  +status: PaymentStatus
+}
+
+class Receipt {
+  +id: Long
+  +numero: String
+  +emitidoEm: LocalDateTime
+  +total: BigDecimal
+}
+
+Residence "1" o-- "0..*" Room : possui
+Client "1" o-- "0..*" Rental : realiza
+Room "1" o-- "0..*" Rental : alocada
+
+Rental "1" o-- "1" Payment : gera
+Rental "1" o-- "1" Receipt : emite
+
+@enduml
+

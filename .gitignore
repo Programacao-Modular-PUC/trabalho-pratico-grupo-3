@@ -1,0 +1,27 @@
+### macOS
+.DS_Store
+
+### Java / Spring
+backend/target/
+backend/data/
+backend/uploads/
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.idea/
+backend/*.iml
+
+### Node / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.eslintcache
+frontend/.idea/
+frontend/*.iml
+
+### Env
+.env
+backend/.env
+frontend/.env
+frontend/.env.local
+

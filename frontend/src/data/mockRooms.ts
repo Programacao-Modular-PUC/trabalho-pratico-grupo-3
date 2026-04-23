@@ -1,0 +1,73 @@
+import type { Room } from '@/types'
+
+export const pilotRooms: Room[] = [
+  {
+    id: 'q1',
+    residenceId: 'r1',
+    locationName: 'Savassi Studio House',
+    label: 'Smart Single Savassi',
+    type: 'individual',
+    baseDaily: 169,
+    hasAc: true,
+    hasJacuzzi: false,
+    hasWifi: true,
+    hasBreakfast: false,
+    finalDaily: 189,
+    status: 'disponivel',
+    summary: 'Quarto compacto e funcional, ideal para viagens rápidas e orçamento enxuto.',
+    fullDescription:
+      'Um quarto individual com design limpo, cama confortável, mesa de apoio e excelente iluminação natural. Fica em uma rua tranquila da Savassi, com acesso rápido a cafés, restaurantes e transporte.',
+    images: [
+      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1400&q=85',
+      'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=1400&q=85',
+      'https://images.unsplash.com/photo-1540518612216-5a583a6c7b6b?w=1400&q=85',
+    ],
+    availabilityNote: 'Disponível para check-in imediato nos próximos dias (mock).',
+  },
+  {
+    id: 'q2',
+    residenceId: 'r2',
+    locationName: 'Aurora Copacabana Flats',
+    label: 'Loft Casal Aurora',
+    type: 'casal',
+    baseDaily: 289,
+    hasAc: true,
+    hasJacuzzi: false,
+    hasWifi: true,
+    hasBreakfast: true,
+    finalDaily: 329,
+    status: 'disponivel',
+    summary: 'Loft aconchegante para casal com ambiente moderno e café da manhã incluído.',
+    fullDescription:
+      'Loft de média categoria com layout aberto, cama queen, mini cozinha e área de estar confortável. Excelente para casal que busca equilíbrio entre conforto e preço, a poucas quadras da orla.',
+    images: [
+      'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1400&q=85',
+      'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1400&q=85',
+      'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1400&q=85',
+    ],
+    availabilityNote: 'Alta disponibilidade para finais de semana (mock).',
+  },
+  {
+    id: 'q3',
+    residenceId: 'r3',
+    locationName: 'Horizonte Premium Jardins',
+    label: 'Suite Premium Horizonte',
+    type: 'casal',
+    baseDaily: 519,
+    hasAc: true,
+    hasJacuzzi: true,
+    hasWifi: true,
+    hasBreakfast: true,
+    finalDaily: 589,
+    status: 'reservado',
+    summary: 'Suíte premium com hidromassagem, acabamento sofisticado e experiência completa.',
+    fullDescription:
+      'Suíte de alto padrão com cama king, banheira de hidromassagem, enxoval premium e área de descanso privativa. Pensada para uma experiência de hospedagem diferenciada, com serviços inclusos e ambiente silencioso.',
+    images: [
+      'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=1400&q=85',
+      'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1400&q=85',
+      'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1400&q=85',
+    ],
+    availabilityNote: 'Próxima janela livre a partir da segunda quinzena (mock).',
+  },
+]
