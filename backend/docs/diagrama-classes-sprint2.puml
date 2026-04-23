@@ -1,0 +1,67 @@
+' Diagrama de classes (Sprint 2) - modelo de domínio e cálculo de diárias
+' Abrir com PlantUML / extensão VS Code, ou: plantuml diagrama-classes-sprint2.puml
+
+@startuml diagrama_sprint2_hospedagem
+skinparam classAttributeIconSize 0
+
+enum TipoQuarto {
+  INDIVIDUAL
+  CASAL
+  FAMILIA
+}
+
+enum TipoCamaCasal {
+  COMUM
+  QUEEN_OU_KING
+}
+
+class Quarto {
+  - tipoQuarto: TipoQuarto
+  - valorBaseDiaria: BigDecimal
+  - possuiArCondicionado: boolean
+  - possuiHidromassagem: boolean
+  - numCamasSolteiro: Integer
+  - adicionalDiariaPorCamaExtra: BigDecimal
+  - tipoCamaCasal: TipoCamaCasal
+  - permiteBerco: Boolean
+  - taxaDiariaBerco: BigDecimal
+  - adicionalConfortoCamaComum: BigDecimal
+  - adicionalConfortoQueenKing: BigDecimal
+  - famCamasSolteiro: Integer
+  - famCamaCasalComum: Integer
+  - famCamaCasalGrande: Integer
+  - famAmbientesDistintos: Integer
+}
+
+class HospedagemCotacao << (R,#FFAAAA) record >> {
+  + numeroHospedes: Integer
+  + solicitaBerco: boolean
+}
+
+class Aluguel {
+  - numeroDiarias: int
+  - valorTotal: BigDecimal
+  - numeroHospedes: Integer
+  - solicitaBerco: boolean
+}
+
+class Reserva {
+  - valorPrevisto: BigDecimal
+  - numeroHospedes: Integer
+  - solicitaBerco: boolean
+}
+
+interface RegrasEspecificasTipoQuartoDiariaStrategy
+interface ExtrasDiariaPricingStrategy
+interface HospedagemValorService
+interface ValorDiariaService
+
+HospedagemCotacao ..> Quarto : padrao por tipo
+Quarto --> TipoQuarto
+Quarto --> TipoCamaCasal
+Aluguel "1" o-- "1" Quarto
+Reserva "1" o-- "1" Quarto
+ValorDiariaService ..> RegrasEspecificasTipoQuartoDiariaStrategy
+ValorDiariaService ..> ExtrasDiariaPricingStrategy
+HospedagemValorService ..> ValorDiariaService
+@enduml

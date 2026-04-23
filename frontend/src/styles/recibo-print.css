@@ -1,0 +1,65 @@
+.recibo-page {
+  max-width: 900px;
+}
+
+.recibo {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 2rem;
+  background: #0e0e0f;
+  color: #f4f4f5;
+  box-shadow: none;
+}
+
+.recibo-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recibo-logo {
+  width: 72px;
+  height: auto;
+  filter: grayscale(1);
+}
+
+.recibo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.recibo-full {
+  grid-column: 1 / -1;
+}
+
+@media print {
+  body {
+    background: white !important;
+    color: #111 !important;
+  }
+  .sidebar,
+  .no-print-actions,
+  .shell .sidebar {
+    display: none !important;
+  }
+  .shell {
+    display: block !important;
+  }
+  .shell-main {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .recibo {
+    border: none;
+    box-shadow: none;
+    background: white;
+    color: #111;
+  }
+  .recibo-header {
+    border-color: #ccc;
+  }
+}
