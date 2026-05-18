@@ -104,12 +104,19 @@ public class ReservaServiceImpl implements ReservaService {
     reserva.setDataHoraSaida(request.dataHoraSaida());
     reserva.setStatus(ReservaStatus.ATIVA);
     reserva.setValorPrevisto(valorPrevisto);
-    if (quarto.getTipoQuarto() == TipoQuarto.INDIVIDUAL) {
-      reserva.setNumeroHospedes(null);
-    } else {
-      reserva.setNumeroHospedes(cot.numeroHospedes());
+if (quarto.getTipoQuarto() == TipoQuarto.INDIVIDUAL) {
+    reserva.setNumeroHospedes(null);
+    if (Boolean.TRUE.equals(cot.solicitaBerco())) {
+        throw new BusinessException(
+            HttpStatus.BAD_REQUEST,
+            "BERCO_NAO_PERMITIDO",
+            "Quarto individual não permite berço");
     }
+    reserva.setSolicitaBerco(false);
+} else {
+    reserva.setNumeroHospedes(cot.numeroHospedes());
     reserva.setSolicitaBerco(cot.solicitaBerco());
+}
     reservaRepository.save(reserva);
 
     var saved = reservaRepository.findFetchedById(reserva.getId()).orElse(reserva);

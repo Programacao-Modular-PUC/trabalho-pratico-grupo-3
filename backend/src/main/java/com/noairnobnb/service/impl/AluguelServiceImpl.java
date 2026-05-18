@@ -290,12 +290,19 @@ public class AluguelServiceImpl implements AluguelService {
     aluguel.setNumeroDiarias(diarias);
     aluguel.setValorTotal(valorTotal);
     aluguel.setStatus(AluguelStatus.ATIVO);
-    if (quarto.getTipoQuarto() == TipoQuarto.INDIVIDUAL) {
-      aluguel.setNumeroHospedes(null);
-    } else {
-      aluguel.setNumeroHospedes(cotacao.numeroHospedes());
+if (quarto.getTipoQuarto() == TipoQuarto.INDIVIDUAL) {
+    aluguel.setNumeroHospedes(null);
+    if (Boolean.TRUE.equals(cotacao.solicitaBerco())) {
+        throw new BusinessException(
+            HttpStatus.BAD_REQUEST,
+            "BERCO_NAO_PERMITIDO",
+            "Quarto individual não permite berço");
     }
+    aluguel.setSolicitaBerco(false);
+} else {
+    aluguel.setNumeroHospedes(cotacao.numeroHospedes());
     aluguel.setSolicitaBerco(cotacao.solicitaBerco());
+}
     aluguelRepository.save(aluguel);
 
     var pagamento = pagamentoService.criarPendenteParaAluguel(aluguel, FormaPagamento.PIX);
