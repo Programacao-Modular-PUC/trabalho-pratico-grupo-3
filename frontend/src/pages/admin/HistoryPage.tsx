@@ -22,9 +22,7 @@ export function HistoryPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight text-white">Histórico</h1>
-        <p className="mt-2 text-sm text-nanb-400">
-          Movimentações por cliente ou quarto — filtros preparados para datas reais.
-        </p>
+        <p className="mt-2 text-sm text-nanb-400">Histórico.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

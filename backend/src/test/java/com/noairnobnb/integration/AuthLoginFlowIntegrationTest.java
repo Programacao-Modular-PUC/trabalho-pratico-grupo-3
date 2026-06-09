@@ -21,9 +21,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Simula o mesmo fluxo do frontend: {@code POST /api/auth/login} com e-mail/senha do README.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -72,7 +69,6 @@ class AuthLoginFlowIntegrationTest {
         .andExpect(jsonPath("$.usuario.roles").isArray());
   }
 
-  /** Domínio @noairbnb.local é aceito e mapeado para o e-mail seed real. */
   @Test
   void postLoginComDominioNoairbnbLocal_retorna200() throws Exception {
     mockMvc

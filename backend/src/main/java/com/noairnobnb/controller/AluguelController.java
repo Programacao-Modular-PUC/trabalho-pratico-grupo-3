@@ -57,6 +57,13 @@ public class AluguelController {
     return aluguelService.finalizar(id, request);
   }
 
+  @PostMapping("/{id}/cancelar")
+  @PreAuthorize("hasAnyRole('ADMIN','CLIENTE','PROPRIETARIO')")
+  @Operation(summary = "Cancelar aluguel ativo")
+  public AluguelResponse cancelar(@PathVariable Long id) {
+    return aluguelService.cancelar(id);
+  }
+
   @GetMapping
   @PreAuthorize("hasAnyRole('ADMIN','PROPRIETARIO','CLIENTE')")
   @Operation(summary = "Listar aluguéis conforme perfil")

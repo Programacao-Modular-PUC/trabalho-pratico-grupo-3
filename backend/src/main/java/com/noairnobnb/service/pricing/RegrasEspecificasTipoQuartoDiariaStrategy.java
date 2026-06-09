@@ -9,10 +9,6 @@ import java.math.RoundingMode;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/**
- * Aplica a regra de preço do tipo de quarto (individual, casal, família) sobre o valor
- * base, antes de extras (ar / hidromassagem) — requisito Sprint 2.
- */
 @Component
 @Order(1)
 public class RegrasEspecificasTipoQuartoDiariaStrategy implements DiariaPricingStrategy {

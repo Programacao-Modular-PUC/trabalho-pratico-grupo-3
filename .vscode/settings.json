@@ -1,0 +1,25 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.maven.enabled": true,
+  "java.project.importOnFirstTimeStartup": "automatic",
+  "java.autobuild.enabled": true,
+  "java.compile.nullAnalysis.mode": "disabled",
+  "java.maven.downloadSources": true,
+  "java.import.maven.offline.enabled": false,
+  "java.import.generatesMetadataFilesAtProjectRoot": false,
+  "java.project.resourceFilters": [
+    "node_modules",
+    ".git",
+    "frontend/dist",
+    "frontend/node_modules"
+  ],
+  "files.watcherExclude": {
+    "**/backend/target/**": true,
+    "**/frontend/node_modules/**": true,
+    "**/frontend/dist/**": true
+  },
+  "search.exclude": {
+    "**/backend/target": true,
+    "**/frontend/node_modules": true
+  }
+}

@@ -4,6 +4,7 @@ import com.noairnobnb.dto.request.ReservaCreateRequest;
 import com.noairnobnb.dto.response.PageResponse;
 import com.noairnobnb.dto.response.ReservaResponse;
 import com.noairnobnb.exception.BusinessException;
+import com.noairnobnb.exception.DataInvalidaException;
 import com.noairnobnb.mapper.ReservaMapper;
 import com.noairnobnb.model.entity.Reserva;
 import com.noairnobnb.model.enums.ReservaStatus;
@@ -84,8 +85,7 @@ public class ReservaServiceImpl implements ReservaService {
       throw new BusinessException(HttpStatus.BAD_REQUEST, "RESERVA_DEVE_SER_FUTURA", "A entrada deve ser no futuro (horário de Brasília).");
     }
     if (!request.dataHoraSaida().isAfter(request.dataHoraEntrada())) {
-      throw new BusinessException(
-          HttpStatus.BAD_REQUEST, "PERIODO_INVALIDO", "dataHoraSaida deve ser posterior a dataHoraEntrada");
+      throw new DataInvalidaException("dataHoraSaida deve ser posterior a dataHoraEntrada");
     }
 
     disponibilidadeService.assertPeriodoLivreParaReserva(

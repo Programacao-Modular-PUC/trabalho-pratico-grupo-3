@@ -26,9 +26,7 @@ export function RentalsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="font-display text-2xl font-semibold tracking-tight text-white">Aluguéis / Hospedagens</h1>
-        <p className="mt-2 text-sm text-nanb-400">
-          Do check-in ao pagamento: diárias, total e status — espelhando o fluxo real do negócio.
-        </p>
+        <p className="mt-2 text-sm text-nanb-400">Aluguéis e pagamentos.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">

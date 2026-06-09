@@ -1086,6 +1086,7 @@ export function PropAlugueisPage() {
 }
 
 export function PropMovimentacaoPage() {
+  const { confirm, toast } = useUi()
   const [params, setParams] = useSearchParams()
   const aba = params.get('aba') === 'alugueis' ? 'alugueis' : 'reservas'
   const [resRows, setResRows] = useState<Reserva[]>([])
@@ -1116,6 +1117,32 @@ export function PropMovimentacaoPage() {
 
   function setAba(next: 'reservas' | 'alugueis') {
     setParams(next === 'reservas' ? { aba: 'reservas' } : { aba: 'alugueis' })
+  }
+
+  async function cancelarAluguel(id: number) {
+    const approved = await confirm({
+      title: 'Cancelar aluguel?',
+      description: 'Cancela o aluguel.',
+      confirmLabel: 'Cancelar aluguel',
+      cancelLabel: 'Voltar',
+      tone: 'danger',
+    })
+    if (!approved) return
+    try {
+      await http.post(`/api/alugueis/${id}/cancelar`)
+      toast({
+        kind: 'success',
+        title: 'Aluguel cancelado',
+        message: 'A estadia foi cancelada com sucesso.',
+      })
+      await load()
+    } catch (error) {
+      toast({
+        kind: 'error',
+        title: 'Não foi possível cancelar',
+        message: getApiErrorMessage(error),
+      })
+    }
   }
 
   return (
@@ -1181,7 +1208,7 @@ export function PropMovimentacaoPage() {
           </DataTable>
         ) : (
           <SectionCard>
-            <EmptyState title="Nenhuma reserva encontrada" description="As reservas dos seus quartos serão listadas aqui automaticamente." />
+            <EmptyState title="Nenhuma reserva encontrada" description="Vazio." />
           </SectionCard>
         )
       ) : alRows.length > 0 ? (
@@ -1207,9 +1234,16 @@ export function PropMovimentacaoPage() {
                     </td>
                     <td>{formatMoney(a.valorTotal)}</td>
                     <td>
-                      <Link className="btn link" to={`/recibo/${a.id}`}>
-                        Abrir recibo
-                      </Link>
+                      <div className="table-actions">
+                        <Link className="btn link" to={`/recibo/${a.id}`}>
+                          Abrir recibo
+                        </Link>
+                        {a.status === 'ATIVO' ? (
+                          <Button type="button" variant="secondary" onClick={() => void cancelarAluguel(a.id)}>
+                            Cancelar
+                          </Button>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -1219,7 +1253,7 @@ export function PropMovimentacaoPage() {
         </DataTable>
       ) : (
         <SectionCard>
-          <EmptyState title="Nenhum aluguel encontrado" description="Novas estadias aparecerão aqui assim que forem registradas." />
+          <EmptyState title="Nenhum aluguel encontrado" description="Vazio." />
         </SectionCard>
       )}
     </div>

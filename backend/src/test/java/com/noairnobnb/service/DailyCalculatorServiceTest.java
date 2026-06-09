@@ -3,28 +3,14 @@ package com.noairnobnb.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.noairnobnb.config.NoAirNoBnbProperties;
-import com.noairnobnb.exception.BusinessException;
+import com.noairnobnb.exception.DataInvalidaException;
+import com.noairnobnb.testutil.TestPricingProperties;
 import com.noairnobnb.service.impl.DailyCalculatorServiceImpl;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
 
 class DailyCalculatorServiceTest {
-  private final DailyCalculatorService sut =
-      new DailyCalculatorServiceImpl(
-          new NoAirNoBnbProperties(
-              new NoAirNoBnbProperties.Security(new NoAirNoBnbProperties.Security.Jwt("x", "y", 60)),
-              new NoAirNoBnbProperties.Business(
-                  new NoAirNoBnbProperties.Business.Diaria(12, 12),
-                  new NoAirNoBnbProperties.Business.Pricing(
-                      new NoAirNoBnbProperties.Business.Pricing.Extras(
-                          java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO),
-                      new NoAirNoBnbProperties.Business.Pricing.Familia(
-                          java.math.BigDecimal.valueOf(0.04),
-                          java.math.BigDecimal.valueOf(12),
-                          java.math.BigDecimal.valueOf(0.02),
-                          java.math.BigDecimal.valueOf(0.20))))));
+  private final DailyCalculatorService sut = new DailyCalculatorServiceImpl(TestPricingProperties.padrao());
 
   @Test
   void entrada10_saida10_mesmoDiaSeguinte_1Diaria() {
@@ -69,11 +55,10 @@ class DailyCalculatorServiceTest {
   }
 
   @Test
-  void saidaNaoPosteriorEntrada_lancaPeriodoInvalido() {
+  void saidaNaoPosteriorEntrada_lancaDataInvalida() {
     var in = LocalDateTime.of(2026, 4, 14, 10, 0);
     assertThatThrownBy(() -> sut.calcularNumeroDiarias(in, in))
-        .isInstanceOf(BusinessException.class)
-        .hasFieldOrPropertyWithValue("code", "PERIODO_INVALIDO")
-        .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+        .isInstanceOf(DataInvalidaException.class)
+        .hasFieldOrPropertyWithValue("code", "DATA_INVALIDA");
   }
 }

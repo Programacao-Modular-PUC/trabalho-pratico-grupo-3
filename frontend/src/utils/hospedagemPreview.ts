@@ -1,10 +1,9 @@
 import type { Quarto } from '../api/types'
 import { localIso } from './format'
 
-/** Alinhado ao padrão em `application.yml` (horário de corte das diárias). */
+/** horário de corte das diárias (igual application.yml) */
 export const PREVIEW_DIARIA_HOUR = 12
 
-/** Padrão `application.yml` (extras) + regras de família (alinhado ao backend). */
 export const PREVIEW_PRICING = {
   extraAr: 0.2,
   extraHidro: 0.25,
@@ -51,10 +50,7 @@ function alinharFim(saida: Date, hour: number): Date {
   return saida.getTime() > b.getTime() ? new Date(b.getTime() + 86_400_000) : b
 }
 
-/**
- * Espelha `DailyCalculatorServiceImpl` (regra das 12h) para pré-visualização no front.
- * Não substitui a validação da API.
- */
+// preview das diárias (regra 12h, igual backend)
 export function previewNumeroDiarias(entradaStr: string, saidaStr: string, hour = PREVIEW_DIARIA_HOUR): number | null {
   const entrada = parseLocalDateTime(entradaStr)
   const saida = parseLocalDateTime(saidaStr)
@@ -100,14 +96,10 @@ function capacidadeFamiliaLocal(q: Pick<Quarto, 'famCamasSolteiro' | 'famCamaCas
 }
 
 export type HospedagemCotacaoPreview = {
-  /** Obrigatório para FAMILIA; recomendado para CASAL; ignorado no INDIVIDUAL. */
   numeroHospedes?: number
   solicitaBerco?: boolean
 }
 
-/**
- * Pós-regra de tipo, antes de extras AR/hidro — espelha `RegrasEspecificasTipoQuartoDiariaStrategy`.
- */
 export function previewBasePorTipoAposRegras(
   quarto: Pick<
     Quarto,

@@ -4,13 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.noairnobnb.dto.request.AluguelCreateClienteRequest;
-import com.noairnobnb.exception.BusinessException;
+import com.noairnobnb.exception.QuartoIndisponivelException;
 import com.noairnobnb.model.entity.Cliente;
 import com.noairnobnb.model.entity.Proprietario;
 import com.noairnobnb.model.entity.Quarto;
 import com.noairnobnb.model.entity.Residencia;
 import com.noairnobnb.model.entity.Role;
 import com.noairnobnb.model.entity.Usuario;
+import com.noairnobnb.model.enums.AluguelStatus;
 import com.noairnobnb.model.enums.PagamentoStatus;
 import com.noairnobnb.model.enums.RoleName;
 import com.noairnobnb.model.enums.TipoQuarto;
@@ -32,7 +33,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -162,9 +162,29 @@ class AluguelPagamentoEConflitoIntegrationTest {
             () ->
                 aluguelService.criarParaClienteLogado(
                     new AluguelCreateClienteRequest(quartoId, entrada, saida, null, null)))
-        .isInstanceOf(BusinessException.class)
-        .hasFieldOrPropertyWithValue("code", "ALUGUEL_CONFLITO")
-        .hasFieldOrPropertyWithValue("status", HttpStatus.CONFLICT);
+        .isInstanceOf(QuartoIndisponivelException.class)
+        .hasFieldOrPropertyWithValue("code", "QUARTO_INDISPONIVEL");
+  }
+
+  @Test
+  void cancelarAluguelAtivoLiberaPagamentoPendente() {
+    loginCliente(clienteUsuarioId, "it-cli-aluguel@test.com");
+    var entrada = LocalDateTime.of(2026, 10, 1, 10, 0);
+    var saida = LocalDateTime.of(2026, 10, 3, 10, 0);
+    var resp =
+        aluguelService.criarParaClienteLogado(
+            new AluguelCreateClienteRequest(quartoId, entrada, saida, null, null));
+
+    var cancelado = aluguelService.cancelar(resp.id());
+
+    assertThat(cancelado.status()).isEqualTo(AluguelStatus.CANCELADO);
+    var pag = pagamentoRepository.findByAluguelId(resp.id()).orElseThrow();
+    assertThat(pag.getStatus()).isEqualTo(PagamentoStatus.CANCELADO);
+
+    var resp2 =
+        aluguelService.criarParaClienteLogado(
+            new AluguelCreateClienteRequest(quartoId, entrada, saida, null, null));
+    assertThat(resp2.id()).isNotEqualTo(resp.id());
   }
 
   private static void loginCliente(Long usuarioId, String email) {

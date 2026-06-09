@@ -14,6 +14,8 @@ public interface AluguelService {
 
   AluguelResponse finalizar(Long aluguelId, AluguelFinalizarRequest request);
 
+  AluguelResponse cancelar(Long aluguelId);
+
   PageResponse<AluguelResponse> listar(Pageable pageable);
 
   AluguelResponse buscarPorId(Long id);

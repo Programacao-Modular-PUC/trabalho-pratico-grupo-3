@@ -181,7 +181,7 @@ export function AdminResidenciasPage() {
   async function excluir(id: number) {
     const shouldDelete = await confirm({
       title: 'Excluir residência?',
-      description: 'Essa ação remove o cadastro da residência e precisa ser confirmada dentro da interface.',
+      description: 'Remove a residência.',
       confirmLabel: 'Excluir residência',
       cancelLabel: 'Voltar',
       tone: 'danger',
@@ -411,7 +411,7 @@ export function AdminQuartosPage() {
         </DataTable>
       ) : (
         <SectionCard>
-          <EmptyState title="Nenhum quarto encontrado" description="Cadastros de quartos aparecerão aqui assim que forem criados." />
+          <EmptyState title="Nenhum quarto encontrado" description="Vazio." />
         </SectionCard>
       )}
     </div>
@@ -477,7 +477,7 @@ export function AdminOperacaoPage() {
       ) : active.loading ? (
         <LoadingState label="Carregando aluguéis…" />
       ) : (
-        alugueis.data && <AluguelTable rows={alugueis.data.content} />
+        alugueis.data && <AluguelTable rows={alugueis.data.content} admin onChanged={() => void alugueis.reload()} />
       )}
     </div>
   )
@@ -572,7 +572,7 @@ export function AdminHistoricoPage() {
         </DataTable>
       ) : (
         <SectionCard>
-          <EmptyState title="Sem histórico recente" description="Novas movimentações operacionais aparecerão aqui automaticamente." />
+          <EmptyState title="Sem histórico recente" description="Nada ainda." />
         </SectionCard>
       )}
     </div>
@@ -593,7 +593,7 @@ function ReservaTable({
   async function cancelar(id: number) {
     const approved = await confirm({
       title: 'Cancelar reserva?',
-      description: 'A reserva será cancelada usando o mesmo endpoint já existente no sistema.',
+      description: 'Confirma?',
       confirmLabel: 'Cancelar reserva',
       cancelLabel: 'Manter reserva',
       tone: 'danger',
@@ -668,12 +668,49 @@ function ReservaTable({
     </DataTable>
   ) : (
     <SectionCard>
-      <EmptyState title="Nenhuma reserva disponível" description="Assim que houver movimentação, as reservas serão listadas aqui." />
+      <EmptyState title="Nenhuma reserva disponível" description="Vazio." />
     </SectionCard>
   )
 }
 
-function AluguelTable({ rows }: { rows: Aluguel[] }) {
+function AluguelTable({
+  rows,
+  admin,
+  onChanged,
+}: {
+  rows: Aluguel[]
+  admin?: boolean
+  onChanged?: () => void
+}) {
+  const { confirm, toast } = useUi()
+
+  async function cancelar(id: number) {
+    const approved = await confirm({
+      title: 'Cancelar aluguel?',
+      description: 'Cancela o aluguel.',
+      confirmLabel: 'Cancelar aluguel',
+      cancelLabel: 'Manter aluguel',
+      tone: 'danger',
+    })
+    if (!approved) return
+
+    try {
+      await http.post(`/api/alugueis/${id}/cancelar`)
+      toast({
+        kind: 'success',
+        title: 'Aluguel cancelado',
+        message: 'A alteração foi aplicada com sucesso.',
+      })
+      onChanged?.()
+    } catch (error) {
+      toast({
+        kind: 'error',
+        title: 'Cancelamento não concluído',
+        message: getApiErrorMessage(error),
+      })
+    }
+  }
+
   return rows.length > 0 ? (
     <DataTable>
       <div className="table-wrap">
@@ -704,9 +741,16 @@ function AluguelTable({ rows }: { rows: Aluguel[] }) {
                 </td>
                 <td>{formatMoney(a.valorTotal)}</td>
                 <td>
-                  <Link className="btn link" to={`/recibo/${a.id}`}>
-                    Abrir recibo
-                  </Link>
+                  <div className="table-actions">
+                    <Link className="btn link" to={`/recibo/${a.id}`}>
+                      Abrir recibo
+                    </Link>
+                    {admin && a.status === 'ATIVO' && (
+                      <Button type="button" variant="secondary" onClick={() => void cancelar(a.id)}>
+                        Cancelar
+                      </Button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -716,7 +760,7 @@ function AluguelTable({ rows }: { rows: Aluguel[] }) {
     </DataTable>
   ) : (
     <SectionCard>
-      <EmptyState title="Nenhum aluguel encontrado" description="Os contratos ativos e concluídos aparecerão aqui automaticamente." />
+      <EmptyState title="Nenhum aluguel encontrado" description="Vazio." />
     </SectionCard>
   )
 }

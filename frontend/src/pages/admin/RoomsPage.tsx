@@ -148,7 +148,7 @@ export function RoomsPage() {
             </label>
           </div>
           <div className="sm:col-span-2 rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-4 text-sm text-nanb-400">
-            O valor final será calculado automaticamente no backend com base nos adicionais e políticas tarifárias.
+            O valor final vem do backend.
           </div>
         </div>
       </Modal>

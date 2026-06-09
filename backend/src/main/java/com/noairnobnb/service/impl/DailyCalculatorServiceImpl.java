@@ -1,14 +1,13 @@
 package com.noairnobnb.service.impl;
 
 import com.noairnobnb.config.NoAirNoBnbProperties;
-import com.noairnobnb.exception.BusinessException;
+import com.noairnobnb.exception.DataInvalidaException;
 import com.noairnobnb.service.DailyCalculatorService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,11 +29,10 @@ public class DailyCalculatorServiceImpl implements DailyCalculatorService {
   @Override
   public int calcularNumeroDiarias(LocalDateTime dataHoraEntrada, LocalDateTime dataHoraSaida) {
     if (dataHoraEntrada == null || dataHoraSaida == null) {
-      throw new BusinessException(HttpStatus.BAD_REQUEST, "DATAS_OBRIGATORIAS", "Datas são obrigatórias");
+      throw new DataInvalidaException("Datas são obrigatórias");
     }
     if (!dataHoraSaida.isAfter(dataHoraEntrada)) {
-      throw new BusinessException(
-          HttpStatus.BAD_REQUEST, "PERIODO_INVALIDO", "dataHoraSaida deve ser posterior a dataHoraEntrada");
+      throw new DataInvalidaException("dataHoraSaida deve ser posterior a dataHoraEntrada");
     }
 
     var diffDias =
@@ -73,7 +71,7 @@ public class DailyCalculatorServiceImpl implements DailyCalculatorService {
     var dias = BigDecimal.valueOf(minutes).divide(BigDecimal.valueOf(24L * 60L), 0, RoundingMode.CEILING);
     var n = dias.intValueExact();
     if (n <= 0) {
-      throw new BusinessException(HttpStatus.BAD_REQUEST, "DIARIAS_INVALIDAS", "Número de diárias inválido");
+      throw new DataInvalidaException("Número de diárias inválido");
     }
     return n;
   }

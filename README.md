@@ -1,45 +1,36 @@
 # NoAirNoBnb
 
-API (Spring Boot) e web (React + Vite). **Dois terminais:** backend na porta 8080 e frontend na 5173.
+TP de hospedagem — Spring Boot + React.
 
-## Pré-requisitos
+## Rodar
 
-- **Java 21** · **Maven** · **Node.js** (LTS) e **npm**
+Java 21, Maven, Node.
 
-## Como rodar
-
-**1) Frontend (primeira vez):**
-
-```bash
-cd frontend
-npm install
-```
-
-**2) Backend (terminal 1):**
+Terminal 1:
 
 ```bash
 cd backend
 mvn spring-boot:run
 ```
 
-- API: `http://localhost:8080`
-- Deixe este terminal aberto e confirme no log o arranque da aplicação **NoAirNoBnb**.
+→ http://localhost:8080
 
-**3) Frontend (terminal 2):**
+Terminal 2:
 
 ```bash
 cd frontend
+npm install   # só na 1ª vez
 npm run dev
 ```
 
-- App: `http://localhost:5173` (o Vite reencaminha `/api` para o backend em 8080)
+→ http://localhost:5173
 
-## Usuários (seed)
+## Logins (seed)
 
-| Perfil         | E-mail                        | Senha            |
-|----------------|------------------------------|-----------------|
-| ADMIN          | `admin@noairnobnb.com`       | `Admin@123`     |
-| PROPRIETARIO   | `proprietario@noairnobnb.com` | `Proprietario@123` |
-| CLIENTE        | `cliente@noairnobnb.com`     | `Cliente@123`   |
+| Perfil       | E-mail                      | Senha              |
+|--------------|-----------------------------|--------------------|
+| ADMIN        | admin@noairnobnb.com        | Admin@123          |
+| PROPRIETARIO | proprietario@noairnobnb.com | Proprietario@123   |
+| CLIENTE      | cliente@noairnobnb.com      | Cliente@123        |
 
-Não há residências nem quartos pré-cadastrados: use a conta de **proprietário** para criar dados antes de testar como **cliente**.
+Não vem com quarto cadastrado — loga como proprietário e cria antes de testar como cliente.

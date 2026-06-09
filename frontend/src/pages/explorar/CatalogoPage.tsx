@@ -40,7 +40,11 @@ export function CatalogoPage() {
     setLoading(true)
     setErr(null)
     try {
-      const { data: page } = await http.get<PageResponse<Quarto>>('/api/quartos?size=200')
+      const params = new URLSearchParams({ size: '200' })
+      if (tipo) params.set('tipo', tipo)
+      if (filtroAr) params.set('possuiArCondicionado', 'true')
+      if (filtroHidro) params.set('possuiHidromassagem', 'true')
+      const { data: page } = await http.get<PageResponse<Quarto>>(`/api/quartos?${params}`)
       setData(page)
     } catch (e) {
       setErr(getApiErrorMessage(e))
@@ -59,14 +63,13 @@ export function CatalogoPage() {
 
   useEffect(() => {
     void load()
-  }, [])
+  }, [tipo, filtroAr, filtroHidro])
 
   const filtrados = useMemo(() => {
     const list = data?.content ?? []
     const q = busca.trim().toLowerCase()
     return list.filter((row) => {
       if (!row.ativo) return false
-      if (tipo && row.tipoQuarto !== tipo) return false
       if (filtroAr && !row.possuiArCondicionado) return false
       if (filtroHidro && !row.possuiHidromassagem) return false
       if (faixa) {
@@ -98,7 +101,7 @@ export function CatalogoPage() {
       <PageHeader
         className="minimal"
         title="Explorar quartos"
-        description="Compare opções por local, tipo, preço e comodidades - catálogo denso, leitura rápida."
+        description="Busca por local, tipo e preço."
         actions={
           authLoading && getToken() ? (
             <span className="muted small" style={{ alignSelf: 'center' }}>

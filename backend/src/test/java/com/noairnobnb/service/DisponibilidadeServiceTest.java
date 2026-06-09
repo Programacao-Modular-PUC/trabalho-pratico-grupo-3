@@ -8,7 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.noairnobnb.exception.BusinessException;
+import com.noairnobnb.exception.DataInvalidaException;
+import com.noairnobnb.exception.QuartoIndisponivelException;
 import com.noairnobnb.model.enums.ReservaStatus;
 import com.noairnobnb.repository.AluguelRepository;
 import com.noairnobnb.repository.ReservaRepository;
@@ -19,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 class DisponibilidadeServiceTest {
@@ -38,60 +38,57 @@ class DisponibilidadeServiceTest {
   }
 
   @Test
-  void assertPeriodoLivreParaAluguel_reservaAtivaConflitante_lancaReservaConflito() {
+  void assertPeriodoLivreParaAluguel_reservaAtivaConflitante_lancaQuartoIndisponivel() {
     when(reservaRepository.existsConflitoPeriodoIgnorando(eq(7L), eq(inicio), eq(fim), eq(ReservaStatus.ATIVA), isNull()))
         .thenReturn(true);
 
     assertThatThrownBy(() -> sut.assertPeriodoLivreParaAluguel(7L, inicio, fim, null))
-        .isInstanceOf(BusinessException.class)
-        .hasFieldOrPropertyWithValue("code", "RESERVA_CONFLITO")
-        .hasFieldOrPropertyWithValue("status", HttpStatus.CONFLICT);
+        .isInstanceOf(QuartoIndisponivelException.class)
+        .hasFieldOrPropertyWithValue("code", "QUARTO_INDISPONIVEL");
 
     verify(aluguelRepository, never()).existsConflitoPeriodoIgnorando(any(), any(), any(), any(), any());
   }
 
   @Test
-  void assertPeriodoLivreParaAluguel_aluguelConflitante_lancaAluguelConflito() {
+  void assertPeriodoLivreParaAluguel_aluguelConflitante_lancaQuartoIndisponivel() {
     when(reservaRepository.existsConflitoPeriodoIgnorando(eq(7L), eq(inicio), eq(fim), eq(ReservaStatus.ATIVA), isNull()))
         .thenReturn(false);
     when(aluguelRepository.existsConflitoPeriodoIgnorando(eq(7L), eq(inicio), eq(fim), any(), isNull()))
         .thenReturn(true);
 
     assertThatThrownBy(() -> sut.assertPeriodoLivreParaAluguel(7L, inicio, fim, null))
-        .isInstanceOf(BusinessException.class)
-        .hasFieldOrPropertyWithValue("code", "ALUGUEL_CONFLITO")
-        .hasFieldOrPropertyWithValue("status", HttpStatus.CONFLICT);
+        .isInstanceOf(QuartoIndisponivelException.class)
+        .hasFieldOrPropertyWithValue("code", "QUARTO_INDISPONIVEL");
   }
 
   @Test
-  void assertPeriodoLivreParaReserva_aluguelConflitante_lancaAluguelConflito() {
+  void assertPeriodoLivreParaReserva_aluguelConflitante_lancaQuartoIndisponivel() {
     when(reservaRepository.existsConflitoPeriodoIgnorando(eq(7L), eq(inicio), eq(fim), eq(ReservaStatus.ATIVA), isNull()))
         .thenReturn(false);
     when(aluguelRepository.existsConflitoPeriodoIgnorando(eq(7L), eq(inicio), eq(fim), any(), isNull()))
         .thenReturn(true);
 
     assertThatThrownBy(() -> sut.assertPeriodoLivreParaReserva(7L, inicio, fim, null))
-        .isInstanceOf(BusinessException.class)
-        .hasFieldOrPropertyWithValue("code", "ALUGUEL_CONFLITO");
+        .isInstanceOf(QuartoIndisponivelException.class)
+        .hasFieldOrPropertyWithValue("code", "QUARTO_INDISPONIVEL");
   }
 
   @Test
-  void assertPeriodoLivreParaReserva_reservaConflitante_lancaReservaConflito() {
+  void assertPeriodoLivreParaReserva_reservaConflitante_lancaQuartoIndisponivel() {
     when(reservaRepository.existsConflitoPeriodoIgnorando(eq(7L), eq(inicio), eq(fim), eq(ReservaStatus.ATIVA), isNull()))
         .thenReturn(true);
 
     assertThatThrownBy(() -> sut.assertPeriodoLivreParaReserva(7L, inicio, fim, null))
-        .isInstanceOf(BusinessException.class)
-        .hasFieldOrPropertyWithValue("code", "RESERVA_CONFLITO");
+        .isInstanceOf(QuartoIndisponivelException.class)
+        .hasFieldOrPropertyWithValue("code", "QUARTO_INDISPONIVEL");
 
     verify(aluguelRepository, never()).existsConflitoPeriodoIgnorando(any(), any(), any(), any(), any());
   }
 
   @Test
-  void assertPeriodoLivre_periodoInvalido_lancaBadRequest() {
+  void assertPeriodoLivre_periodoInvalido_lancaDataInvalida() {
     assertThatThrownBy(() -> sut.assertPeriodoLivreParaAluguel(1L, inicio, inicio, null))
-        .isInstanceOf(BusinessException.class)
-        .hasFieldOrPropertyWithValue("code", "PERIODO_INVALIDO")
-        .hasFieldOrPropertyWithValue("status", HttpStatus.BAD_REQUEST);
+        .isInstanceOf(DataInvalidaException.class)
+        .hasFieldOrPropertyWithValue("code", "DATA_INVALIDA");
   }
 }

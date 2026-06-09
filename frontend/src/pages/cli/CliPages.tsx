@@ -92,7 +92,7 @@ export function CliPerfilPage() {
         open={editOpen}
         onClose={() => setEditOpen(false)}
         title="Editar perfil"
-        description="Atualize seus dados de contato. As alterações seguem as mesmas regras da API."
+        description="Editar dados do perfil."
         size="md"
         footer={
           <>
@@ -214,10 +214,10 @@ export function CliEstadiasPage() {
     setParams(next === 'reservas' ? { aba: 'reservas' } : { aba: 'alugueis' })
   }
 
-  async function cancelar(id: number) {
+  async function cancelarReserva(id: number) {
     const approved = await confirm({
       title: 'Cancelar reserva?',
-      description: 'A reserva será cancelada dentro do sistema, sem usar qualquer confirmação nativa do navegador.',
+      description: 'Confirma o cancelamento?',
       confirmLabel: 'Cancelar reserva',
       cancelLabel: 'Voltar',
       tone: 'danger',
@@ -229,6 +229,32 @@ export function CliEstadiasPage() {
         kind: 'success',
         title: 'Reserva cancelada',
         message: 'Sua solicitação foi processada com sucesso.',
+      })
+      await loadAll()
+    } catch (error) {
+      toast({
+        kind: 'error',
+        title: 'Não foi possível cancelar',
+        message: getApiErrorMessage(error),
+      })
+    }
+  }
+
+  async function cancelarAluguel(id: number) {
+    const approved = await confirm({
+      title: 'Cancelar aluguel?',
+      description: 'Cancela o aluguel ativo.',
+      confirmLabel: 'Cancelar aluguel',
+      cancelLabel: 'Voltar',
+      tone: 'danger',
+    })
+    if (!approved) return
+    try {
+      await http.post(`/api/alugueis/${id}/cancelar`)
+      toast({
+        kind: 'success',
+        title: 'Aluguel cancelado',
+        message: 'A estadia foi cancelada com sucesso.',
       })
       await loadAll()
     } catch (error) {
@@ -315,7 +341,7 @@ export function CliEstadiasPage() {
                         </span>
                       </Link>
                       {r.status === 'ATIVA' ? (
-                        <Button type="button" variant="secondary" onClick={() => void cancelar(r.id)}>
+                        <Button type="button" variant="secondary" onClick={() => void cancelarReserva(r.id)}>
                           Cancelar
                         </Button>
                       ) : null}
@@ -386,6 +412,11 @@ export function CliEstadiasPage() {
                     <Link className="btn primary" to={`/recibo/${a.id}`}>
                       Abrir recibo
                     </Link>
+                    {a.status === 'ATIVO' ? (
+                      <Button type="button" variant="secondary" onClick={() => void cancelarAluguel(a.id)}>
+                        Cancelar
+                      </Button>
+                    ) : null}
                   </div>
                 </div>
               </article>

@@ -70,7 +70,7 @@ export function AppShell() {
   async function handleLogout() {
     const shouldLogout = await confirm({
       title: 'Encerrar sessão?',
-      description: 'Você pode entrar novamente a qualquer momento usando suas credenciais atuais.',
+      description: 'Você pode entrar de novo quando quiser.',
       confirmLabel: 'Sair agora',
       cancelLabel: 'Continuar aqui',
       tone: 'danger',

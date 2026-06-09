@@ -239,7 +239,7 @@ export function QuartoDetalhePage() {
         setStep(1)
       }}
       title="Reserva ou aluguel"
-      description="Informe o período e confirme. Os valores são estimativas locais; o total final vem da API."
+      description="Escolha período e confirme."
       size="lg"
       footer={
         <Button type="button" variant="ghost" onClick={() => setBookingOpen(false)}>

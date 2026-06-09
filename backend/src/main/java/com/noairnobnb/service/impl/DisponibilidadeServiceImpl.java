@@ -1,6 +1,7 @@
 package com.noairnobnb.service.impl;
 
-import com.noairnobnb.exception.BusinessException;
+import com.noairnobnb.exception.DataInvalidaException;
+import com.noairnobnb.exception.QuartoIndisponivelException;
 import com.noairnobnb.model.enums.AluguelStatus;
 import com.noairnobnb.model.enums.ReservaStatus;
 import com.noairnobnb.repository.AluguelRepository;
@@ -8,7 +9,6 @@ import com.noairnobnb.repository.ReservaRepository;
 import com.noairnobnb.service.DisponibilidadeService;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,11 +31,11 @@ public class DisponibilidadeServiceImpl implements DisponibilidadeService {
 
     if (reservaRepository.existsConflitoPeriodoIgnorando(
         quartoId, inicio, fim, ReservaStatus.ATIVA, ignorarReservaId)) {
-      throw new BusinessException(HttpStatus.CONFLICT, "RESERVA_CONFLITO", "Conflito de período com reserva ativa");
+      throw new QuartoIndisponivelException("Conflito de período com reserva ativa");
     }
 
     if (aluguelRepository.existsConflitoPeriodoIgnorando(quartoId, inicio, fim, ALUGUEL_OCUPA, null)) {
-      throw new BusinessException(HttpStatus.CONFLICT, "ALUGUEL_CONFLITO", "Conflito de período com aluguel");
+      throw new QuartoIndisponivelException("Conflito de período com aluguel");
     }
   }
 
@@ -45,21 +45,20 @@ public class DisponibilidadeServiceImpl implements DisponibilidadeService {
     validarPeriodoBasico(inicio, fim);
 
     if (reservaRepository.existsConflitoPeriodoIgnorando(quartoId, inicio, fim, ReservaStatus.ATIVA, null)) {
-      throw new BusinessException(HttpStatus.CONFLICT, "RESERVA_CONFLITO", "Conflito de período com reserva ativa");
+      throw new QuartoIndisponivelException("Conflito de período com reserva ativa");
     }
 
     if (aluguelRepository.existsConflitoPeriodoIgnorando(quartoId, inicio, fim, ALUGUEL_OCUPA, ignorarAluguelId)) {
-      throw new BusinessException(HttpStatus.CONFLICT, "ALUGUEL_CONFLITO", "Conflito de período com aluguel");
+      throw new QuartoIndisponivelException("Conflito de período com aluguel");
     }
   }
 
   private void validarPeriodoBasico(LocalDateTime inicio, LocalDateTime fim) {
     if (inicio == null || fim == null) {
-      throw new BusinessException(HttpStatus.BAD_REQUEST, "DATAS_OBRIGATORIAS", "Datas são obrigatórias");
+      throw new DataInvalidaException("Datas são obrigatórias");
     }
     if (!fim.isAfter(inicio)) {
-      throw new BusinessException(
-          HttpStatus.BAD_REQUEST, "PERIODO_INVALIDO", "dataHoraSaida deve ser posterior a dataHoraEntrada");
+      throw new DataInvalidaException("dataHoraSaida deve ser posterior a dataHoraEntrada");
     }
   }
 }

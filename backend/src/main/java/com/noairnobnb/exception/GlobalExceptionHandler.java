@@ -17,6 +17,46 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 public class GlobalExceptionHandler {
   @ExceptionHandler(BusinessException.class)
   public ResponseEntity<ApiErrorResponse> business(BusinessException ex, HttpServletRequest req) {
+    return businessResponse(ex, req);
+  }
+
+  @ExceptionHandler({
+    QuartoIndisponivelException.class,
+    CapacidadeExcedidaException.class,
+    DataInvalidaException.class,
+    RecursoNaoPermitidoException.class
+  })
+  public ResponseEntity<ApiErrorResponse> domain(BusinessException ex, HttpServletRequest req) {
+    return businessResponse(ex, req);
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<ApiErrorResponse> illegalArgument(IllegalArgumentException ex, HttpServletRequest req) {
+    var body =
+        new ApiErrorResponse(
+            Instant.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            "ARGUMENTO_INVALIDO",
+            ex.getMessage() != null ? ex.getMessage() : "Argumento inválido",
+            req.getRequestURI(),
+            null);
+    return ResponseEntity.badRequest().body(body);
+  }
+
+  @ExceptionHandler(java.time.DateTimeException.class)
+  public ResponseEntity<ApiErrorResponse> dateTime(java.time.DateTimeException ex, HttpServletRequest req) {
+    var body =
+        new ApiErrorResponse(
+            Instant.now(),
+            HttpStatus.BAD_REQUEST.value(),
+            "DATA_INVALIDA",
+            "Data ou horário inválido",
+            req.getRequestURI(),
+            null);
+    return ResponseEntity.badRequest().body(body);
+  }
+
+  private static ResponseEntity<ApiErrorResponse> businessResponse(BusinessException ex, HttpServletRequest req) {
     var body =
         new ApiErrorResponse(
             Instant.now(),

@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 type PropFlowHintProps = {
   title: string
   children: ReactNode
-  /** Tempo até sumir sozinho (ms). */
   autoHideMs?: number
 }
 

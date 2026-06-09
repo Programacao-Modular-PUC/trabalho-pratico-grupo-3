@@ -1,5 +1,4 @@
-' Diagrama de classes (Sprint 2) - modelo de domínio e cálculo de diárias
-' Abrir com PlantUML / extensão VS Code, ou: plantuml diagrama-classes-sprint2.puml
+' Sprint 2 - diagrama de classes
 
 @startuml diagrama_sprint2_hospedagem
 skinparam classAttributeIconSize 0
