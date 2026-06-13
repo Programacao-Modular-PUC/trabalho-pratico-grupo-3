@@ -6,6 +6,7 @@ import com.noairnobnb.dto.request.AluguelFinalizarRequest;
 import com.noairnobnb.dto.response.AluguelResponse;
 import com.noairnobnb.dto.response.PageResponse;
 import com.noairnobnb.exception.BusinessException;
+import com.noairnobnb.exception.RecursoNaoPermitidoException;
 import com.noairnobnb.exception.DataInvalidaException;
 import com.noairnobnb.mapper.AluguelMapper;
 import com.noairnobnb.model.HospedagemCotacao;
@@ -78,18 +79,17 @@ public class AluguelServiceImpl implements AluguelService {
   @Transactional
   public AluguelResponse criarParaClienteLogado(AluguelCreateClienteRequest request) {
     var principal = SecurityUtils.requireUser();
-    var cliente =
-        clienteRepository
-            .findByUsuarioId(principal.getUserId())
-            .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
+    var cliente = clienteRepository
+        .findByUsuarioId(principal.getUserId())
+        .orElseThrow(
+            () -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
 
-    var quarto =
-        quartoRepository
-            .findFetchedById(request.quartoId())
-            .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "QUARTO_NAO_ENCONTRADO", "Quarto não encontrado"));
-    var cot =
-        hospedagemCotacaoFactory.criar(
-            quarto, request.numeroHospedes(), request.solicitaBerco());
+    var quarto = quartoRepository
+        .findFetchedById(request.quartoId())
+        .orElseThrow(
+            () -> new BusinessException(HttpStatus.NOT_FOUND, "QUARTO_NAO_ENCONTRADO", "Quarto não encontrado"));
+    var cot = hospedagemCotacaoFactory.criar(
+        quarto, request.numeroHospedes(), request.solicitaBerco());
     return criarInterno(cliente, quarto, request.dataHoraEntrada(), request.dataHoraSaida(), cot);
   }
 
@@ -97,43 +97,42 @@ public class AluguelServiceImpl implements AluguelService {
   @Transactional
   public AluguelResponse criarAdmin(AluguelCreateAdminRequest request) {
     SecurityUtils.requireAny("ADMIN");
-    var cliente =
-        clienteRepository
-            .findById(request.clienteId())
-            .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
-    var quarto =
-        quartoRepository
-            .findFetchedById(request.quartoId())
-            .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "QUARTO_NAO_ENCONTRADO", "Quarto não encontrado"));
-    var cot =
-        hospedagemCotacaoFactory.criar(
-            quarto, request.numeroHospedes(), request.solicitaBerco());
+    var cliente = clienteRepository
+        .findById(request.clienteId())
+        .orElseThrow(
+            () -> new BusinessException(HttpStatus.NOT_FOUND, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
+    var quarto = quartoRepository
+        .findFetchedById(request.quartoId())
+        .orElseThrow(
+            () -> new BusinessException(HttpStatus.NOT_FOUND, "QUARTO_NAO_ENCONTRADO", "Quarto não encontrado"));
+    var cot = hospedagemCotacaoFactory.criar(
+        quarto, request.numeroHospedes(), request.solicitaBerco());
     return criarInterno(cliente, quarto, request.dataHoraEntrada(), request.dataHoraSaida(), cot);
   }
 
   @Override
   @Transactional
   public AluguelResponse finalizar(Long aluguelId, AluguelFinalizarRequest request) {
-    var aluguel =
-        aluguelRepository
-            .findFetchedById(aluguelId)
-            .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "ALUGUEL_NAO_ENCONTRADO", "Aluguel não encontrado"));
+    var aluguel = aluguelRepository
+        .findFetchedById(aluguelId)
+        .orElseThrow(
+            () -> new BusinessException(HttpStatus.NOT_FOUND, "ALUGUEL_NAO_ENCONTRADO", "Aluguel não encontrado"));
 
     if (SecurityUtils.hasAny("CLIENTE")) {
       var principal = SecurityUtils.requireUser();
-      var cliente =
-          clienteRepository
-              .findByUsuarioId(principal.getUserId())
-              .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
+      var cliente = clienteRepository
+          .findByUsuarioId(principal.getUserId())
+          .orElseThrow(
+              () -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
       if (!aluguel.getCliente().getId().equals(cliente.getId())) {
         throw new BusinessException(HttpStatus.FORBIDDEN, "ALUGUEL_NAO_PERTENCE", "Aluguel não pertence ao cliente");
       }
     } else if (SecurityUtils.hasAny("PROPRIETARIO")) {
       var principal = SecurityUtils.requireUser();
-      var prop =
-          proprietarioRepository
-              .findByUsuarioId(principal.getUserId())
-              .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "PROPRIETARIO_NAO_ENCONTRADO", "Proprietário não encontrado"));
+      var prop = proprietarioRepository
+          .findByUsuarioId(principal.getUserId())
+          .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "PROPRIETARIO_NAO_ENCONTRADO",
+              "Proprietário não encontrado"));
       if (!aluguel.getQuarto().getResidencia().getProprietario().getId().equals(prop.getId())) {
         throw new BusinessException(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "Acesso negado");
       }
@@ -152,10 +151,10 @@ public class AluguelServiceImpl implements AluguelService {
         aluguel.getQuarto().getId(), aluguel.getDataHoraEntrada(), request.dataHoraSaida(), aluguel.getId());
 
     aluguel.setDataHoraSaida(request.dataHoraSaida());
-    var diarias = dailyCalculatorService.calcularNumeroDiarias(aluguel.getDataHoraEntrada(), aluguel.getDataHoraSaida());
-    var cot =
-        hospedagemCotacaoFactory.paraAluguelExistente(
-            aluguel.getQuarto(), aluguel.getNumeroHospedes(), aluguel.isSolicitaBerco());
+    var diarias = dailyCalculatorService.calcularNumeroDiarias(aluguel.getDataHoraEntrada(),
+        aluguel.getDataHoraSaida());
+    var cot = hospedagemCotacaoFactory.paraAluguelExistente(
+        aluguel.getQuarto(), aluguel.getNumeroHospedes(), aluguel.isSolicitaBerco());
     var valorTotal = hospedagemValorService.calcularValorTotal(aluguel.getQuarto(), diarias, cot);
     aluguel.setNumeroDiarias(diarias);
     aluguel.setValorTotal(valorTotal);
@@ -176,10 +175,10 @@ public class AluguelServiceImpl implements AluguelService {
   @Override
   @Transactional
   public AluguelResponse cancelar(Long aluguelId) {
-    var aluguel =
-        aluguelRepository
-            .findFetchedById(aluguelId)
-            .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "ALUGUEL_NAO_ENCONTRADO", "Aluguel não encontrado"));
+    var aluguel = aluguelRepository
+        .findFetchedById(aluguelId)
+        .orElseThrow(
+            () -> new BusinessException(HttpStatus.NOT_FOUND, "ALUGUEL_NAO_ENCONTRADO", "Aluguel não encontrado"));
 
     assertAcessoAluguel(aluguel);
 
@@ -211,20 +210,21 @@ public class AluguelServiceImpl implements AluguelService {
     }
     if (SecurityUtils.hasAny("PROPRIETARIO")) {
       var principal = SecurityUtils.requireUser();
-      var prop =
-          proprietarioRepository
-              .findByUsuarioId(principal.getUserId())
-              .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "PROPRIETARIO_NAO_ENCONTRADO", "Proprietário não encontrado"));
+      var prop = proprietarioRepository
+          .findByUsuarioId(principal.getUserId())
+          .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "PROPRIETARIO_NAO_ENCONTRADO",
+              "Proprietário não encontrado"));
       return PageUtils.map(
           aluguelRepository.findAllFetchedByProprietarioId(prop.getId(), pageable), aluguelMapper::toResponse);
     }
     if (SecurityUtils.hasAny("CLIENTE")) {
       var principal = SecurityUtils.requireUser();
-      var cliente =
-          clienteRepository
-              .findByUsuarioId(principal.getUserId())
-              .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
-      return PageUtils.map(aluguelRepository.findAllFetchedByClienteId(cliente.getId(), pageable), aluguelMapper::toResponse);
+      var cliente = clienteRepository
+          .findByUsuarioId(principal.getUserId())
+          .orElseThrow(
+              () -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
+      return PageUtils.map(aluguelRepository.findAllFetchedByClienteId(cliente.getId(), pageable),
+          aluguelMapper::toResponse);
     }
     throw new BusinessException(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "Acesso negado");
   }
@@ -232,10 +232,10 @@ public class AluguelServiceImpl implements AluguelService {
   @Override
   @Transactional(readOnly = true)
   public AluguelResponse buscarPorId(Long id) {
-    var aluguel =
-        aluguelRepository
-            .findFetchedById(id)
-            .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "ALUGUEL_NAO_ENCONTRADO", "Aluguel não encontrado"));
+    var aluguel = aluguelRepository
+        .findFetchedById(id)
+        .orElseThrow(
+            () -> new BusinessException(HttpStatus.NOT_FOUND, "ALUGUEL_NAO_ENCONTRADO", "Aluguel não encontrado"));
     assertAcessoAluguel(aluguel);
     return aluguelMapper.toResponse(aluguel);
   }
@@ -246,10 +246,10 @@ public class AluguelServiceImpl implements AluguelService {
     SecurityUtils.requireAny("ADMIN", "PROPRIETARIO", "CLIENTE");
     if (SecurityUtils.hasAny("CLIENTE")) {
       var principal = SecurityUtils.requireUser();
-      var me =
-          clienteRepository
-              .findByUsuarioId(principal.getUserId())
-              .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
+      var me = clienteRepository
+          .findByUsuarioId(principal.getUserId())
+          .orElseThrow(
+              () -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
       if (!me.getId().equals(clienteId)) {
         throw new BusinessException(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "Acesso negado");
       }
@@ -263,14 +263,14 @@ public class AluguelServiceImpl implements AluguelService {
     SecurityUtils.requireAny("ADMIN", "PROPRIETARIO", "CLIENTE");
     if (SecurityUtils.hasAny("PROPRIETARIO")) {
       var principal = SecurityUtils.requireUser();
-      var prop =
-          proprietarioRepository
-              .findByUsuarioId(principal.getUserId())
-              .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "PROPRIETARIO_NAO_ENCONTRADO", "Proprietário não encontrado"));
-      var quarto =
-          quartoRepository
-              .findFetchedById(quartoId)
-              .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND, "QUARTO_NAO_ENCONTRADO", "Quarto não encontrado"));
+      var prop = proprietarioRepository
+          .findByUsuarioId(principal.getUserId())
+          .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "PROPRIETARIO_NAO_ENCONTRADO",
+              "Proprietário não encontrado"));
+      var quarto = quartoRepository
+          .findFetchedById(quartoId)
+          .orElseThrow(
+              () -> new BusinessException(HttpStatus.NOT_FOUND, "QUARTO_NAO_ENCONTRADO", "Quarto não encontrado"));
       if (!quarto.getResidencia().getProprietario().getId().equals(prop.getId())) {
         throw new BusinessException(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "Acesso negado");
       }
@@ -297,19 +297,16 @@ public class AluguelServiceImpl implements AluguelService {
     aluguel.setNumeroDiarias(diarias);
     aluguel.setValorTotal(valorTotal);
     aluguel.setStatus(AluguelStatus.ATIVO);
-if (quarto.getTipoQuarto() == TipoQuarto.INDIVIDUAL) {
-    aluguel.setNumeroHospedes(null);
-    if (Boolean.TRUE.equals(cotacao.solicitaBerco())) {
-        throw new BusinessException(
-            HttpStatus.BAD_REQUEST,
-            "BERCO_NAO_PERMITIDO",
-            "Quarto individual não permite berço");
+    if (quarto.getTipoQuarto() == TipoQuarto.INDIVIDUAL) {
+      aluguel.setNumeroHospedes(null);
+      if (Boolean.TRUE.equals(cotacao.solicitaBerco())) {
+        throw new RecursoNaoPermitidoException("Quarto individual não permite berço");
+      }
+      aluguel.setSolicitaBerco(false);
+    } else {
+      aluguel.setNumeroHospedes(cotacao.numeroHospedes());
+      aluguel.setSolicitaBerco(cotacao.solicitaBerco());
     }
-    aluguel.setSolicitaBerco(false);
-} else {
-    aluguel.setNumeroHospedes(cotacao.numeroHospedes());
-    aluguel.setSolicitaBerco(cotacao.solicitaBerco());
-}
     aluguelRepository.save(aluguel);
 
     var pagamento = pagamentoService.criarPendenteParaAluguel(aluguel, FormaPagamento.PIX);
@@ -325,10 +322,10 @@ if (quarto.getTipoQuarto() == TipoQuarto.INDIVIDUAL) {
     }
     if (SecurityUtils.hasAny("PROPRIETARIO")) {
       var principal = SecurityUtils.requireUser();
-      var prop =
-          proprietarioRepository
-              .findByUsuarioId(principal.getUserId())
-              .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "PROPRIETARIO_NAO_ENCONTRADO", "Proprietário não encontrado"));
+      var prop = proprietarioRepository
+          .findByUsuarioId(principal.getUserId())
+          .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "PROPRIETARIO_NAO_ENCONTRADO",
+              "Proprietário não encontrado"));
       if (!aluguel.getQuarto().getResidencia().getProprietario().getId().equals(prop.getId())) {
         throw new BusinessException(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "Acesso negado");
       }
@@ -336,10 +333,10 @@ if (quarto.getTipoQuarto() == TipoQuarto.INDIVIDUAL) {
     }
     if (SecurityUtils.hasAny("CLIENTE")) {
       var principal = SecurityUtils.requireUser();
-      var cliente =
-          clienteRepository
-              .findByUsuarioId(principal.getUserId())
-              .orElseThrow(() -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
+      var cliente = clienteRepository
+          .findByUsuarioId(principal.getUserId())
+          .orElseThrow(
+              () -> new BusinessException(HttpStatus.FORBIDDEN, "CLIENTE_NAO_ENCONTRADO", "Cliente não encontrado"));
       if (!aluguel.getCliente().getId().equals(cliente.getId())) {
         throw new BusinessException(HttpStatus.FORBIDDEN, "ACCESS_DENIED", "Acesso negado");
       }
